@@ -67,7 +67,7 @@ drawworld.prototype.drawSwing = function(Tcamera, Tpost, lightd){
    this.then = this.now;
    this.dangle = this.elapsed / 1000 * this.angularspeed;
    this.angle += this.dangle;
-   this.angularsmall += this.elapsed / 1000 * this.slider5.value / 100 * Math.PI + this.dangle;
+   this.angularsmall += this.elapsed / 1000 * this.slider5.value / 100 * Math.PI;
    if(this.angularsmall > 2*Math.PI)this.angularsmall -= 2*Math.PI;
    
    // calculate the swing angle
