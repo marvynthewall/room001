@@ -1,0 +1,52 @@
+{
+  "name": "twgl.js",
+  "version": "1.9.0",
+  "description": "A Tiny WebGL helper library",
+  "main": "dist/twgl-full.js",
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/greggman/twgl.js.git"
+  },
+  "keywords": [
+    "WebGL",
+    "twgl"
+  ],
+  "author": "Greggman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/greggman/twgl.js/issues"
+  },
+  "homepage": "https://github.com/greggman/twgl.js",
+  "files": [
+    "dist/twgl-full.js",
+    "dist/twgl.js"
+  ],
+  "devDependencies": {
+    "almond": "^0.3.1",
+    "eslint": "^2.11.1",
+    "eslint-plugin-google-camelcase": "0.0.1",
+    "eslint-plugin-html": "git+https://github.com/greggman/eslint-plugin-html.git#fix-space-eating",
+    "eslint-plugin-one-variable-per-var": "0.0.3",
+    "eslint-plugin-optional-comma-spacing": "0.0.4",
+    "eslint-plugin-require-trailing-comma": "0.0.1",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-requirejs": "^0.4.4",
+    "grunt-contrib-uglify": "^0.9.1",
+    "grunt-eslint": "^18.0.0",
+    "grunt-jsdoc": "^1.1.0",
+    "load-grunt-tasks": "^3.4.1",
+    "marked": "^0.3.3",
+    "minami": "^1.1.1",
+    "mocha": "^2.3.4",
+    "requirejs": "^2.1.22",
+    "semver": "^4.3.4",
+    "should": "^8.1.1"
+  },
+  "dependencies": {}
+}

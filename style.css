@@ -1,0 +1,15 @@
+body {
+   background-color: #333333;
+   font-family: 'Open Sans', sans-serif;
+}
+h1{
+   font-size: 60pt;
+   color: #4ba6b5;
+}
+.bodytitle   {
+   height:100px; 
+   text-align: center;
+}
+div {
+   text-align: center;
+}
