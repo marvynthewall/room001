@@ -16,7 +16,7 @@ div {
    text-align: center;
 }
 .spin {
-   float: left;
+   float: right;
    font-size: 30pt;
    color: #4ba6b5;
 }
@@ -25,4 +25,9 @@ div {
    margin: 20pt;
    font-size: 20pt;
    color: #4ba6b5;
+}
+.bar {
+   width:50%;
+   margin:0;
+   float:left;
 }
