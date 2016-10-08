@@ -11,8 +11,8 @@ function run(){
    var slider5 = document.getElementById("slider5");
    var world = new drawworld(canvas, context, m4);
 
-   var maxdistance = 500;
-   var center = [0, 200, 0];
+   var maxdistance = 1500;
+   var center = [0, 400, 0];
    var lightd = [2, 1, 3];
    var lll = Math.sqrt(lightd[0] * lightd[0] + lightd[1] * lightd[1] + lightd[2] * lightd[2]);
    lightd = [lightd[0]/lll, lightd[1]/lll, lightd[2]/lll];
@@ -23,7 +23,7 @@ function run(){
       var theta = Math.PI*2*slider2.value/200;
       //var theta = Math.PI/5;
       var r = maxdistance*slider1.value/100;
-      for(;center[1]+r*Math.cos(phi) >= 600 || center[1] + r*Math.cos(phi) <= 0; r -= 10);
+      for(;center[1]+r*Math.cos(phi) >= 1500 || center[1] + r*Math.cos(phi) <= 0; r -= 10);
       slider1.value = r * 100 / maxdistance;
       var eye = [ center[0] + r * Math.sin(phi) * Math.cos(theta), center[1] + r * Math.cos(phi) , center[2] + r * Math.sin(phi) * Math.sin(theta)];
       var target = center;
@@ -37,32 +37,10 @@ function run(){
       TT = m4.multiply(TT, Tviewport);
       var Tpost = m4.multiply(Tprojection, Tviewport);
 
-      //world.drawCube(Tcamera, Tpost);
-      /*
-      //try area
-      var vv = parseInt(slider4.value);
-      var p = new poly(50, 50, 250);
-      p.insert(0, 0, vv);
-      p.insert(0, vv, 0);
-      p.insert(vv, 0, 0);
-      p.printnode();
-      p.clip(Tcamera);
-      p.printnode();
-      world.drawpoly(p, Tcamera, Tpost);
-
-      var v = slider5.value;
-      var s = new poly(50, 250, 50);
-      s.insert(50, 0, 50);
-      s.insert(50, 20, 50);
-      s.insert(50, 20, 2*parseInt(v)+50);
-      s.insert(50, 0, 2*parseInt(v)+50);
-      s.clip(Tcamera);
-      world.drawpoly(s, Tcamera, Tpost);
-      //try area
-      */
       world.drawAll(Tcamera, Tpost, lightd);
       //world.drawAxes(Tcamera, Tpost);
-
+      
+      window.requestAnimationFrame(draw);
    }
    slider1.addEventListener("input", draw);
    slider2.addEventListener("input", draw);

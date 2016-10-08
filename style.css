@@ -3,6 +3,7 @@ body {
    font-family: 'Open Sans', sans-serif;
 }
 h1{
+   margin: 20pt;
    font-size: 60pt;
    color: #4ba6b5;
 }
@@ -11,5 +12,6 @@ h1{
    text-align: center;
 }
 div {
+   margin: 30pt;
    text-align: center;
 }

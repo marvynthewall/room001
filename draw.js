@@ -4,6 +4,16 @@ function drawworld(canv, cont, m){
    this.context = cont;
    this.m4 = m;
    this.shapelist = new shapelist();
+   this.angularspeed = 0;
+   this.angularsmall = 0;
+   this.swangle = 0;  // the tilt angle
+   this.angle = 0;   // the angle position of whole    
+   this.dangle;
+   this.now;
+   this.then = Date.now();
+   this.elapsed;
+   this.slider4 = document.getElementById("slider4");
+   this.slider5 = document.getElementById("slider5");
 }
 drawworld.prototype.renew = function(){
    this.shapelist.clear();
@@ -12,13 +22,159 @@ drawworld.prototype.drawAll = function(Tcamera, Tpost, lightd){
    // the room
    this.drawroom(Tcamera, Tpost);
    this.drawshapes(Tpost);
+   /*
    // just some cube
    var Ttrans = this.m4.translation([0, 250, 0]);
    var Tcom = this.m4.multiply(Ttrans, Tcamera);
-   this.addCube(Tcom, Tpost, lightd, 100, 255, 150);
+   this.addCube(Tcom, lightd, 100, 255, 150);
+   */
    // the desk
    this.drawDesk(Tcamera, Tpost, lightd, 90, 50, 15);
+
+   // the swing
+   this.drawSwing(Tcamera, Tpost, lightd);
+   
+   // draw
    this.drawshapes(Tpost);
+}
+drawworld.prototype.drawSwing = function(Tcamera, Tpost, lightd){
+   var axisX = [1, 0, 0];
+   var axisY = [0, 1, 0];
+   var axisZ = [0, 0, 1];
+
+   
+   var eqtall1 = 280;
+   var eqtall2 = 80;
+   var upperheight = 320;
+   var armheight = 300;
+   var armlength = 120;
+   var wirelength = 150;
+   var swirelength = 36;
+   var openangle = 0.61;
+   
+   var bodyr = 219;
+   var bodyg = 171;
+   var bodyb = 237;
+   var liner = 0;
+   var lineg = 0;
+   var lineb = 0;
+   var scube = [[30, 186, 101], [239, 58, 58], [84, 92, 239], [244, 229, 44]];
+
+   // calculate the real speed
+   this.angularspeed = this.slider4.value / 100 * Math.PI;
+   this.now = Date.now();
+   this.elapsed = this.now - this.then;  // in millisecond
+   this.then = this.now;
+   this.dangle = this.elapsed / 1000 * this.angularspeed;
+   this.angle += this.dangle;
+   this.angularsmall += this.elapsed / 1000 * this.slider5.value / 100 * Math.PI + this.dangle;
+   if(this.angularsmall > 2*Math.PI)this.angularsmall -= 2*Math.PI;
+   
+   // calculate the swing angle
+   this.swangle = Math.PI/2 - cswing(this.angularspeed);
+
+   // start drawing
+   var Tdesktop = this.m4.translation([0, 200, 0]);
+   var Tnow = this.m4.multiply(Tdesktop, Tcamera); // on the desk up
+   var Tmodel = this.m4.axisRotation(axisY, this.angle);
+   Tnow = this.m4.multiply(Tmodel, Tnow);
+   this.addCube(Tnow, lightd, bodyr, bodyg, bodyb, eqtall1, 40, 40); // light purple
+   var Tsecond = this.m4.translation([0, upperheight, 0]);
+   var Tsecond = this.m4.multiply(Tsecond, Tnow);
+   this.addCube(Tsecond, lightd, bodyr, bodyg, bodyb, eqtall2, 40, 40);
+   var Theight = this.m4.translation([0, armheight, 0]);
+   Tnow = this.m4.multiply(Theight, Tnow);                 // on the height of arm
+   var Trotate = this.m4.axisRotation(axisY, Math.PI/2);
+   var ro = this.m4.axisRotation(axisX, Math.PI/2);
+   var Toutward = this.m4.translation([0,20,0]);
+   var Tout = this.m4.multiply(Toutward, ro);
+
+   function drawArm(world, Tx, ccc){
+      world.addCube(Tx, lightd, bodyr, bodyg, bodyb, armlength);
+      var Tpack = world.m4.translation([0, armlength, 0]);
+      var Ttilt = world.m4.axisRotation(axisX, world.swangle);
+      var Tsp = world.m4.axisRotation(axisY, world.angularsmall);
+      Tx = world.m4.multiply(Tpack, Tx);
+      Tx = world.m4.multiply(Ttilt, Tx);
+      Tx = world.m4.multiply(Tsp, Tx);
+      drawPackage(world, Tx, ccc);
+   }
+   function drawPackage(world, Tx, ccc){
+      
+      //TODO change the line into small plane or thin cube
+      world.addCube(Tx, lightd, liner, lineg, lineb, wirelength, 2, 2);
+      var Twire1 = world.m4.translation([0, wirelength, 0]);
+      var Tweb = world.m4.multiply(Twire1, Tx);
+      var Trot = world.m4.axisRotation(axisY, Math.PI/2);
+      var Trotnow = world.m4.axisRotation(axisY, Math.PI/4);
+      var Topen = world.m4.axisRotation(axisX, openangle);
+      
+      var Tnnn = world.m4.multiply(Trotnow, Tweb);
+      Tnnn = world.m4.multiply(Topen, Tnnn);
+      world.addCube(Tnnn, lightd, liner, lineg, lineb, swirelength, 2, 2);
+
+
+      Trotnow = world.m4.multiply(Trot, Trotnow);
+      Tnnn = world.m4.multiply(Trotnow, Tweb);
+      Tnnn = world.m4.multiply(Topen, Tnnn);
+      world.addCube(Tnnn, lightd, liner, lineg, lineb, swirelength, 2, 2);
+
+      Trotnow = world.m4.multiply(Trot, Trotnow);
+      Tnnn = world.m4.multiply(Trotnow, Tweb);
+      Tnnn = world.m4.multiply(Topen, Tnnn);
+      world.addCube(Tnnn, lightd, liner, lineg, lineb, swirelength, 2, 2);
+
+      Trotnow = world.m4.multiply(Trot, Trotnow);
+      Tnnn = world.m4.multiply(Trotnow, Tweb);
+      Tnnn = world.m4.multiply(Topen, Tnnn);
+      world.addCube(Tnnn, lightd, liner, lineg, lineb, swirelength, 2, 2);
+
+      var Tjump = world.m4.translation([0,wirelength+30,0]);
+      var Tfinal = world.m4.multiply(Tjump, Tx);
+      world.addCube(Tfinal, lightd, scube[ccc][0], scube[ccc][1], scube[ccc][2], 30, 30, 30);
+   }
+   var Tarm = this.m4.multiply(Tout, Tnow);
+   drawArm(this, Tarm, 0);
+   Tnow = this.m4.multiply(Trotate, Tnow);
+   Tarm = this.m4.multiply(Tout, Tnow);
+   drawArm(this, Tarm, 1);
+   Tnow = this.m4.multiply(Trotate, Tnow);
+   Tarm = this.m4.multiply(Tout, Tnow);
+   drawArm(this, Tarm, 2);
+   Tnow = this.m4.multiply(Trotate, Tnow);
+   Tarm = this.m4.multiply(Tout, Tnow);
+   drawArm(this, Tarm, 3);
+   
+   function equa(as, r){
+      var w = as;
+      var g = 2000;
+      return (150*(w*w*r)/(Math.sqrt(w*w*w*w*r*r+g*g))+120);
+   }
+   function cswing(as){
+      var tick = 10;
+      var s = armlength;
+      var e = armlength + wirelength;
+      var r = armlength;
+      var rr;
+      var theta;
+      for(;r <= e;r+=tick){
+         rr = equa(as, r);
+         if(rr-r < 0.1 && r-rr < 0.1)
+            break;
+         else if(rr > r){// the next round
+            s = rr-tick;
+            r = s;
+            e = rr;
+            tick /= 10;
+         }
+      }
+      if(r <= armlength + wirelength && r >= armlength){
+         theta = Math.asin((r-armlength) / wirelength);
+         return theta;
+      }
+      else return 0;
+      
+   }
 }
 drawworld.prototype.drawshapes = function(Tpost){
    var l = this.shapelist.list.length;
@@ -27,9 +183,9 @@ drawworld.prototype.drawshapes = function(Tpost){
    this.renew();
 }
 drawworld.prototype.drawroom = function(Tcamera, Tpost){
-   var h = 600;
-   var l = 600;   // x direction
-   var w = 800;   // z direction
+   var h = 1500;
+   var l = 1500;   // x direction
+   var w = 2000;   // z direction
    var c_r;
    var c_g;
    var c_b;
@@ -69,9 +225,6 @@ drawworld.prototype.drawroom = function(Tcamera, Tpost){
    }
 }
 drawworld.prototype.calout = function(n1, n2, n3){
-   console.log(n1);
-   console.log(n2);
-   console.log(n3);
    var a = [n2[0]-n1[0], n2[1]-n1[1], n2[2]-n1[2]];
    var b = [n3[0]-n1[0], n3[1]-n1[1], n3[2]-n1[2]];
    var out = [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1] - a[1]*b[0]];
@@ -91,9 +244,6 @@ drawworld.prototype.drawDesk = function(Tcamera, Tpost, lightd, c_r , c_g, c_b){
                      [4, 5, 13, 12], [5, 6, 14, 13], [6, 7, 15, 14], [7, 0, 8, 15]  ]
    for(var k = 0; k < planenum.length ; ++k){
       // create shadow
-      console.log("hi");
-      console.log(planenum[k][1]);
-      console.log(points[planenum[k][1]]);
       var outdir = this.calout(points[planenum[k][0]], points[planenum[k][1]], points[planenum[k][2]]);
       var p = new poly(Tcamera, lightd, outdir, c_r, c_g, c_b);// the whole points is same color
       for(var i = 0; i < planenum[k].length; ++i)
@@ -156,9 +306,9 @@ drawworld.prototype.drawpoly = function(poly, Tcamera, Tpost){
    this.context.closePath();
    this.context.fillStyle = color;
    this.context.fill();
-   this.context.stroke();
+   //this.context.stroke();
 }
-drawworld.prototype.addCube = function(Tcamera, Tpost, lightd, c_r, c_g, c_b, height = 50, length = 40, width = 40){
+drawworld.prototype.addCube = function(Tcamera, lightd, c_r, c_g, c_b, height = 50, length = 40, width = 40){
    var h = height;
    var l = length / 2;
    var w = width / 2;
