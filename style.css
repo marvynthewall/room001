@@ -15,3 +15,14 @@ div {
    margin: 30pt;
    text-align: center;
 }
+.spin {
+   float: left;
+   font-size: 30pt;
+   color: #4ba6b5;
+}
+.ctrl {
+   float: left;
+   margin: 20pt;
+   font-size: 20pt;
+   color: #4ba6b5;
+}

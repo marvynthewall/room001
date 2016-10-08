@@ -12,18 +12,23 @@
       <link rel=stylesheet href="style.css">
       <link href="https://fonts.googleapis.com/css?family=Open+Sans:700" rel="stylesheet">
    </head>
-   <body>
+   <body id="body">
       <div class="bodytitle">
          <h1>Marvyn's 3D World</h1>
+      </div>
+      <div>
+         <div class="spin">
+            SPIN
+            <input type="range" id = "slider4", min="-100", max="100", value="0">
+            <input type="range" id = "slider5", min="-100", max="100", value="0">
+         </div>
+         <div class="ctrl">
+            <p>Control: WSAD, F: closer, G: farther</p>
+         </div>
       </div>
       <div class="canvasarea">
          <canvas id="mycanvas" height="800" width="1300" background-color="white"></canvas>
       </div>
-      <input type="range" id = "slider1", min="1", max="100", value="100">
-      <input type="range" id = "slider2", min="0", max="200", value="20">
-      <input type="range" id = "slider3", min="1", max="99", value="30">
-      <input type="range" id = "slider4", min="-100", max="100", value="0">
-      <input type="range" id = "slider5", min="-100", max="100", value="0">
    </body>
 </html>
 

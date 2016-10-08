@@ -160,8 +160,6 @@ poly.prototype.caldis = function(Tcamera){
    this.dis = Math.sqrt(x*x+y*y+z*z);
 }
 
-// this is totally wrong, need to all compare in camera space!!
-// TODO
 poly.prototype.lighting = function(){
    var inner = this.outdir[0] * this.lightd[0] + this.outdir[1] * this.lightd[1] + this.outdir[2] * this.lightd[2];
    var darker = this.shade * (1-inner)/2;

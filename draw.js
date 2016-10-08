@@ -20,14 +20,8 @@ drawworld.prototype.renew = function(){
 }
 drawworld.prototype.drawAll = function(Tcamera, Tpost, lightd){
    // the room
-   this.drawroom(Tcamera, Tpost);
-   this.drawshapes(Tpost);
-   /*
-   // just some cube
-   var Ttrans = this.m4.translation([0, 250, 0]);
-   var Tcom = this.m4.multiply(Ttrans, Tcamera);
-   this.addCube(Tcom, lightd, 100, 255, 150);
-   */
+   this.drawroom(Tcamera, Tpost, lightd);
+
    // the desk
    this.drawDesk(Tcamera, Tpost, lightd, 90, 50, 15);
 
@@ -52,9 +46,9 @@ drawworld.prototype.drawSwing = function(Tcamera, Tpost, lightd){
    var swirelength = 36;
    var openangle = 0.61;
    
-   var bodyr = 219;
-   var bodyg = 171;
-   var bodyb = 237;
+   var bodyr = 159;
+   var bodyg = 101;
+   var bodyb = 167;
    var liner = 0;
    var lineg = 0;
    var lineb = 0;
@@ -91,7 +85,7 @@ drawworld.prototype.drawSwing = function(Tcamera, Tpost, lightd){
 
    function drawArm(world, Tx, ccc){
       world.addCube(Tx, lightd, bodyr, bodyg, bodyb, armlength);
-      var Tpack = world.m4.translation([0, armlength, 0]);
+      var Tpack = world.m4.translation([0, armlength+2, 0]);
       var Ttilt = world.m4.axisRotation(axisX, world.swangle);
       var Tsp = world.m4.axisRotation(axisY, world.angularsmall);
       Tx = world.m4.multiply(Tpack, Tx);
@@ -101,7 +95,6 @@ drawworld.prototype.drawSwing = function(Tcamera, Tpost, lightd){
    }
    function drawPackage(world, Tx, ccc){
       
-      //TODO change the line into small plane or thin cube
       world.addCube(Tx, lightd, liner, lineg, lineb, wirelength, 2, 2);
       var Twire1 = world.m4.translation([0, wirelength, 0]);
       var Tweb = world.m4.multiply(Twire1, Tx);
@@ -182,10 +175,17 @@ drawworld.prototype.drawshapes = function(Tpost){
       this.drawpoly(this.shapelist.list[i], this.shapelist.list[i].Tcamera, Tpost);
    this.renew();
 }
-drawworld.prototype.drawroom = function(Tcamera, Tpost){
+drawworld.prototype.drawroom = function(Tcamera, Tpost, lightwindow){
    var h = 1500;
    var l = 1500;   // x direction
    var w = 2000;   // z direction
+   var twid = 500;   // brick width
+   var winwidth = 400;
+   var winheight = 600;
+   var width = 20;   // windows wood width
+   var wc = [100, 60, 21]; //wood color
+   var gc = [115, 236, 255];  // glass color
+   var dc = [120, 80, 30];   // door color
    var c_r;
    var c_g;
    var c_b;
@@ -199,30 +199,158 @@ drawworld.prototype.drawroom = function(Tcamera, Tpost){
          c_r = 112;
          c_g = 160;
          c_b = 219;
+         continue;
       }
       else if(k == 1){// the ceiling
          c_r = 100;
-         c_g = 100;
-         c_b = 100;
-      }
-      else if(k == 2 || k == 4){
-         c_r = 91;
-         c_g = 64;
-         c_b = 33;
-      }
-      else if(k == 3 || k == 5){
-         c_r = 90;
          c_g = 50;
+         c_b = 20;
+      }
+      else if(k == 2 || k == 4){// two wall
+         c_r = 51;
+         c_g = 33;
+         c_b = 16;
+      }
+      else if(k == 3 || k == 5){// two wall
+         c_r = 60;
+         c_g = 40;
          c_b = 11;
       }
-      // create shadow
-      var outdir = this.calout(cube[planenum[k][0]], cube[planenum[k][1]], cube[planenum[k][2]]);
+      //var outdir = this.calout(cube[planenum[k][0]], cube[planenum[k][1]], cube[planenum[k][2]]);
       var p = new poly(Tcamera, lightd, outdir, c_r, c_g, c_b);
       for(var i = 0; i < 4; ++i)
          p.insertnode(cube[planenum[k][i]]);
       p.render(Tcamera);
       this.shapelist.insert(p);
    }
+   // bricks
+   var bc1 = [20, 20, 20];
+   var bc2 = [200, 200, 200];
+   var bc;
+   for(var i = -l ; i < l ; i+=twid)
+      for(var j = -w ; j < w ; j+=twid){
+         if((i/twid + j/twid)%2 == 0)
+            bc = bc1;
+         else bc = bc2;
+         var p = new poly(Tcamera, lightd, outdir, bc[0], bc[1], bc[2]);
+         p.insert(i, 0, j);
+         p.insert(i , 0, j + twid);
+         p.insert(i+twid, 0, j+twid);
+         p.insert(i+twid, 0, j);
+         p.render(Tcamera);
+         this.shapelist.insert(p);
+      }
+   this.drawshapes(Tpost);
+   
+   var ax = [1, 0, 0];
+   var ay = [0, 1, 0];
+   var az = [0, 0, 1];
+   var a1 = Math.PI/2;
+   var a2 = Math.PI*3/2;
+   //door
+   
+   var Tdoor = this.m4.translation([-900, 600, -2000]);
+   var Tf = this.m4.axisRotation(ax, a1);
+   Tdoor = this.m4.multiply(Tf, Tdoor);
+   Tdoor = this.m4.multiply(Tdoor, Tcamera);
+   this.addCube(Tdoor, lightwindow, dc[0], dc[1], dc[2], width, 600,1200);
+   var Thandle = this.m4.translation([250, width, 0]);
+   Thandle = this.m4.multiply(Thandle, Tdoor);
+   this.addCube(Thandle, lightwindow, dc[0]+50, dc[1]+50, dc[2]+50, 50, 50,50);
+   var Tsw = this.m4.translation([0, width, -350]);
+   Tsw = this.m4.multiply(Tsw, Tdoor);
+   this.drawshapes(Tpost);
+   drawWindow(this, Tsw, 200, 200, width, wc, gc);
+   
+
+   //Windows!!
+   var Twindow;
+   var Tface;
+   var poswindows = [ [-1500, 800, -1200], [-1500, 800, 0], [-1500, 800, 1200],
+                      [1500, 800, -1200], [1500, 800, -700], [1500, 800, -200],
+                      [ 800, 800, -2000]  ];
+   var faceaxis = [ az, az, az, az, az, az, ax];
+   var faceangle = [ a2, a2, a2, a1, a1, a1, a1];
+   for(var k = 0 ; k < poswindows.length ; ++k){
+      Twindow = this.m4.translation(poswindows[k]);
+      Tface = this.m4.axisRotation(faceaxis[k], faceangle[k]);
+      Twindow = this.m4.multiply(Tface, Twindow);
+      Twindow = this.m4.multiply(Twindow, Tcamera);
+      drawWindow(this, Twindow, winwidth, winheight, width, wc, gc);
+   }
+   this.drawshapes(Tpost);
+   function drawWindow(world, Tcamera, winw, winh, wid, wc, gc){
+      var x = [-(winh/2), -(winh/4), 0, winh/4, winh/2];
+      var z = [winw/2, winw/4, 0, -(winw/4), -(winw/2)];
+      var corner = [ [ x[0], 0, z[0] ], [ x[0], 0, z[2] ], [ x[0], 0, z[4] ],
+          [ x[2], 0, z[0] ], [ x[2], 0, z[2] ], [ x[2], 0, z[4] ],
+          [ x[4], 0, z[0] ], [ x[4], 0, z[2] ], [ x[4], 0, z[4] ] ];     // for corner wood cube
+      var horizon = [ [ x[0], 0, z[1] ], [ x[0], 0, z[3] ],
+          [ x[2], 0, z[1] ], [ x[2], 0, z[3] ],
+          [ x[4], 0, z[1] ], [ x[4], 0, z[3] ] ];                       // for horizon wood
+      var vertical = [ [ x[1], 0, z[0] ], [ x[1], 0, z[2] ], [ x[1], 0, z[4] ],
+          [ x[3], 0, z[0] ], [ x[3], 0, z[2] ], [ x[3], 0, z[4] ] ];   // for vertical woods
+      var glass = [ [ x[1], 0, z[1] ], [ x[1], 0, z[3] ],
+          [ x[3], 0, z[1] ], [ x[3], 0, z[3] ] ];
+      var Tnow = Tcamera;
+      var Twin;
+      for(var i = 0 ; i < corner.length ; ++i ){      // corner wood cube
+         Twin = world.m4.translation(corner[i]);
+         Tnow = world.m4.multiply(Twin, Tcamera);
+         world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, wid, wid);
+      }
+      for(var i = 0 ; i < horizon.length ; ++i ){      // horizon wood
+         Twin = world.m4.translation(horizon[i]);
+         Tnow = world.m4.multiply(Twin, Tcamera);
+         world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, wid, (winw/2)-wid);
+      }
+      for(var i = 0 ; i < vertical.length ; ++i ){      // vertical wood
+         Twin = world.m4.translation(vertical[i]);
+         Tnow = world.m4.multiply(Twin, Tcamera);
+         world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, (winh/2)-wid, wid);
+      }
+      for(var i = 0 ; i < glass.length ; ++i ){      // glass
+         Twin = world.m4.translation(glass[i]);
+         Tnow = world.m4.multiply(Twin, Tcamera);
+         world.addCube(Tnow, lightwindow, gc[0], gc[1], gc[2], wid, (winh/2)-wid, (winw/2)-wid);
+      }
+
+/*
+      world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, wid, winw-wid);
+      var Twin = world.m4.translation([-(winh/2), 0, 0]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, wid, winw-wid);
+      Twin = world.m4.translation([winh/2, 0, 0]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, wid, winw-wid);
+      // the side
+      Twin = world.m4.translation([0, 0, -(winw/2)]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, winh+wid, wid);
+      Twin = world.m4.translation([0, 0, winw/2]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, winh+wid, wid);
+      // the middle straight
+      Twin = world.m4.translation([winh/4, 0, 0]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, (winh/2)-wid, wid);
+      Twin = world.m4.translation([-winh/4, 0, 0]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, wc[0], wc[1], wc[2], wid, (winh/2)-wid, wid);
+      // the glass
+      Twin = world.m4.translation([winh/4, 0, winw/4]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, gc[0], gc[1], gc[2], wid/2, (winh/2)-wid, (winw/2)-wid);
+      Twin = world.m4.translation([-winh/4, 0, winw/4]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, gc[0], gc[1], gc[2], wid/2, (winh/2)-wid, (winw/2)-wid);
+      Twin = world.m4.translation([winh/4, 0, -winw/4]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, gc[0], gc[1], gc[2], wid/2, (winh/2)-wid, (winw/2)-wid);
+      Twin = world.m4.translation([-winh/4, 0, -winw/4]);
+      Tnow = world.m4.multiply(Twin, Tcamera);
+      world.addCube(Tnow, lightwindow, gc[0], gc[1], gc[2], wid/2, (winh/2)-wid, (winw/2)-wid);
+ */  }
 }
 drawworld.prototype.calout = function(n1, n2, n3){
    var a = [n2[0]-n1[0], n2[1]-n1[1], n2[2]-n1[2]];
@@ -244,7 +372,10 @@ drawworld.prototype.drawDesk = function(Tcamera, Tpost, lightd, c_r , c_g, c_b){
                      [4, 5, 13, 12], [5, 6, 14, 13], [6, 7, 15, 14], [7, 0, 8, 15]  ]
    for(var k = 0; k < planenum.length ; ++k){
       // create shadow
-      var outdir = this.calout(points[planenum[k][0]], points[planenum[k][1]], points[planenum[k][2]]);
+      var p0 = this.m4.transformPoint(Tcamera, points[planenum[k][0]]);
+      var p1 = this.m4.transformPoint(Tcamera, points[planenum[k][1]]);
+      var p2 = this.m4.transformPoint(Tcamera, points[planenum[k][2]]);
+      var outdir = this.calout(p0, p1, p2);
       var p = new poly(Tcamera, lightd, outdir, c_r, c_g, c_b);// the whole points is same color
       for(var i = 0; i < planenum[k].length; ++i)
          p.insertnode(points[planenum[k][i]]);
@@ -274,7 +405,7 @@ drawworld.prototype.drawAxes = function(Tx1, Tx2){
    this.moveToTx(0,0,0,Tx1, Tx2);this.lineToTx(0,150,0,Tx1, Tx2);this.context.stroke();
    this.moveToTx(0,0,0,Tx1, Tx2);this.lineToTx(0,0,150,Tx1, Tx2);this.context.stroke();
 }
-drawworld.prototype.drawCube = function(Tx1, Tx2, height= 50, length = 40, width = 40){
+drawworld.prototype.drawCubeold = function(Tx1, Tx2, height= 50, length = 40, width = 40){
    this.context.beginPath();
    var h = height;
    var l = length / 2;
@@ -287,12 +418,6 @@ drawworld.prototype.drawCube = function(Tx1, Tx2, height= 50, length = 40, width
    this.lineToTx(-l,h,w,Tx1, Tx2);this.lineToTx(l,h,w,Tx1, Tx2);this.context.stroke();
    this.moveToTx(-l,0,w,Tx1, Tx2);this.lineToTx(-l,0,-w,Tx1, Tx2);
    this.lineToTx(-l,h,-w,Tx1, Tx2);this.lineToTx(-l,h,w,Tx1, Tx2);this.context.stroke();
-   /*this.context.beginPath();
-   this.moveToTx(-l, 0, w, Tx1, Tx2);this.lineToTx(-l, 0, -w, Tx1, Tx2);
-   this.lineToTx(l, 0, -w, Tx1, Tx2);this.lineToTx(l, 0, w, Tx1, Tx2);
-   this.context.closePath();
-   this.context.fillStyle = "#FFFFFF";
-   this.context.fill();*/
 }
 drawworld.prototype.drawpoly = function(poly, Tcamera, Tpost){
    //console.log(poly.noshow);
@@ -317,7 +442,10 @@ drawworld.prototype.addCube = function(Tcamera, lightd, c_r, c_g, c_b, height = 
    // make 6 squares(poly), and all put into shapelist
    for(var k = 0; k < 6 ; ++k){
       // create shadow
-      var outdir = this.calout(cube[planenum[k][0]], cube[planenum[k][1]], cube[planenum[k][2]]);
+      var p0 = this.m4.transformPoint(Tcamera, cube[planenum[k][0]]);
+      var p1 = this.m4.transformPoint(Tcamera, cube[planenum[k][1]]);
+      var p2 = this.m4.transformPoint(Tcamera, cube[planenum[k][2]]);
+      var outdir = this.calout(p0, p1, p2);
       var p = new poly(Tcamera, lightd, outdir, c_r, c_g, c_b);// the whole cube is same color
       for(var i = 0; i < 4; ++i)
          p.insertnode(cube[planenum[k][i]]);
